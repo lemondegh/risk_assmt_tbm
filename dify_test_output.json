@@ -1,0 +1,16 @@
+{
+  "task_id": "acd368ca-cad5-49f5-8673-a09a9dfe92a0",
+  "workflow_run_id": "5d559b88-3ad6-42cc-873a-69b8e4dae7e4",
+  "data": {
+    "id": "5d559b88-3ad6-42cc-873a-69b8e4dae7e4",
+    "workflow_id": "6cd92e50-cb5b-4bfe-84ea-addc60178341",
+    "status": "failed",
+    "outputs": {},
+    "error": "[models] Bad Request Error, Error code: 404 - {'error': {'message': 'The model `chatgpt-4o-latest` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+    "elapsed_time": 1.076504,
+    "total_tokens": 0,
+    "total_steps": 2,
+    "created_at": 1789532341,
+    "finished_at": 1789532342
+  }
+}

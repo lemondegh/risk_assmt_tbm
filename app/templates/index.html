@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세이프티 TBM 코파일럿 | 산업 현장 위험성평가표 및 TBM 안전일지 자동 생성기</title>
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        font-size: 11pt;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .print-page {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+      thead {
+        display: table-header-group;
+      }
+      tfoot {
+        display: table-footer-group;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 12mm 10mm;
+      }
+    }
+    .print-only {
+      display: none;
+    }
+    /* 모바일 가로 스크롤바 커스텀 */
+    .overflow-x-auto::-webkit-scrollbar {
+      height: 6px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-700 min-h-screen antialiased flex flex-col">
+
+  <!-- 네비게이션 헤더 (화면용) -->
+  <header class="no-print bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm shadow-indigo-200 shrink-0">
+          <i data-lucide="shield-check" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <h1 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">세이프티 TBM 코파일럿</h1>
+            <span class="hidden xs:inline-flex sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/60 whitespace-nowrap shrink-0">
+              KOSHA AI
+            </span>
+          </div>
+          <p class="hidden md:block text-xs text-slate-500 truncate">중대재해 예방 일일 위험성평가표 & TBM 안전일지 자동 생성기</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- 엔진 상태 뱃지 (화면이 충분히 넓을 때 표시) -->
+        <div id="engineStatusBadge" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="engineStatusText">Dify AI 연동 됨</span>
+        </div>
+
+        <!-- Dify 설정 버튼 -->
+        <button onclick="openConfigModal()" title="API 설정" class="p-1.5 sm:px-3 sm:py-1.5 rounded-lg font-medium text-xs text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-sm active:scale-95">
+          <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+          <span class="hidden sm:inline">API 설정</span>
+        </button>
+
+        <!-- A4 인쇄 / PDF 저장 버튼 -->
+        <button onclick="handlePrint()" title="인쇄 및 PDF 저장" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg font-medium text-xs text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+          <i data-lucide="printer" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+          <span class="hidden sm:inline">인쇄 / PDF 저장</span>
+          <span class="sm:hidden">PDF/인쇄</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+    <!-- 상단 안내 및 퀵 프리셋 배너 (화면용) -->
+    <section class="no-print bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+      <div>
+        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+          <span>원클릭 현장 공종 예시 불러오기</span>
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">예시를 클릭하면 입력 폼에 작업 내용이 자동으로 채워집니다.</p>
+      </div>
+      <div class="flex flex-wrap gap-1.5 sm:gap-2">
+        <button onclick="applyPreset(0)" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 border border-slate-200 text-slate-700 transition-all whitespace-nowrap active:scale-95">
+          🏗️ 비계 해체 및 고소 도장
+        </button>
+        <button onclick="applyPreset(1)" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 border border-slate-200 text-slate-700 transition-all whitespace-nowrap active:scale-95">
+          ⚡ 철골 조립 및 아크 용접
+        </button>
+        <button onclick="applyPreset(2)" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 border border-slate-200 text-slate-700 transition-all whitespace-nowrap active:scale-95">
+          🚜 토공사 굴착 및 흙막이
+        </button>
+        <button onclick="applyPreset(3)" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 border border-slate-200 text-slate-700 transition-all whitespace-nowrap active:scale-95">
+          🕳️ 지하 밀폐공간 배관
+        </button>
+      </div>
+    </section>
+
+    <!-- 1. 현장 입력 폼 (화면용) -->
+    <section class="no-print bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6">
+      <form id="tbmForm" onsubmit="handleGenerate(event)" class="space-y-4 sm:space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          <!-- 현장명 -->
+          <div class="sm:col-span-2 md:col-span-1">
+            <label for="siteName" class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <i data-lucide="building-2" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+              <span>공사/현장명</span><span class="text-rose-500">*</span>
+            </label>
+            <input type="text" id="siteName" required
+              value="판교 제2테크노밸리 업무시설 신축현장"
+              placeholder="예: 판교 제2테크노밸리 건축공사"
+              class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border bg-white text-slate-800" />
+          </div>
+
+          <!-- 작업일자 -->
+          <div>
+            <label for="workDate" class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+              <span>작업 일자</span><span class="text-rose-500">*</span>
+            </label>
+            <input type="date" id="workDate" required
+              class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border bg-white text-slate-800" />
+          </div>
+
+          <!-- 투입 인원 수 -->
+          <div>
+            <label for="workerCount" class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+              <span>투입 예정 인원 (명)</span><span class="text-rose-500">*</span>
+            </label>
+            <input type="number" id="workerCount" min="1" max="500" required
+              value="14"
+              class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border bg-white text-slate-800" />
+          </div>
+        </div>
+
+        <!-- 당일 작업 내용 -->
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
+            <label for="workDesc" class="block text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+              <span>당일 작업 내용 (공종 및 세부 작업 자유 기술)</span><span class="text-rose-500">*</span>
+            </label>
+            <span class="text-[11px] sm:text-xs text-slate-400">여러 공종을 일상 언어로 입력하면 AI가 자동 분류합니다</span>
+          </div>
+          <textarea id="workDesc" rows="3" required
+            placeholder="예: 3공구 외부 시스템 비계 해체 작업 진행 및 외벽 고소 로프 도장작업 실시. 하부 자재 정리 및 지상 지게차 자재 반출 작업 병행."
+            class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm p-3 border bg-white text-slate-800 leading-relaxed">3공구 외부 4층 구간 시스템 비계 해체작업 진행 및 외벽 고소 로프 도장작업 실시. 하부 자재 정리 및 지상 지게차 자재 반출 작업 병행.</textarea>
+        </div>
+
+        <!-- 액션 버튼 및 생성형 AI 옵션 영역 -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+          <div class="flex items-center gap-2">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 hover:text-slate-900 transition-colors">
+              <input type="checkbox" id="allowGenerativeAccident" checked
+                class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer transition">
+              <span class="font-medium">지식 베이스에 사고 사례가 없을 경우 생성형 AI로 생성</span>
+            </label>
+            <span class="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 whitespace-nowrap">
+              KOSHA 가이드 참조
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button type="button" onclick="clearForm()" class="flex-1 sm:flex-initial px-4 py-2.5 sm:py-2 rounded-lg font-medium transition duration-200 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs sm:text-sm whitespace-nowrap shadow-sm">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span>초기화</span>
+            </button>
+            <button type="submit" id="btnSubmit" class="flex-[2] sm:flex-initial px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg font-medium transition duration-200 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm text-xs sm:text-sm whitespace-nowrap">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>AI 위험성평가 및 TBM 일지 생성</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- 로딩 인디케이터 (화면용) -->
+    <div id="loadingIndicator" class="hidden no-print bg-white rounded-xl border border-indigo-100 shadow-sm p-8 text-center space-y-3">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 animate-spin">
+        <i data-lucide="loader-2" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">KOSHA 안전 매트릭스 & TBM 대본 분석 중...</h3>
+      <p class="text-xs text-slate-500">입력된 작업 공종을 분리하고, 5x5 빈도·강도 산정 및 3대 핵심 수칙을 도출하고 있습니다.</p>
+    </div>
+
+    <!-- 결과 섹션 (인쇄 시 이 영역이 메인 서식으로 변환됨) -->
+    <div id="resultSection" class="space-y-6">
+
+      <!-- 상단 요약 KPI 카드 (4종) (화면용) -->
+      <section class="no-print grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <!-- 1. 총 평가 요인 -->
+        <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+            <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] sm:text-xs font-medium text-slate-500 truncate">총 평가 위험요인</p>
+            <p id="kpiTotal" class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">3건</p>
+          </div>
+        </div>
+
+        <!-- 2. 고위험 (Red) -->
+        <div class="bg-white rounded-xl border border-rose-200/80 shadow-sm p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 bg-rose-50/20">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+            <i data-lucide="alert-triangle" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <p class="text-[11px] sm:text-xs font-medium text-rose-800 truncate">고위험 (9~25)</p>
+            </div>
+            <p id="kpiHigh" class="text-xl sm:text-2xl font-bold text-rose-600 mt-0.5">2건</p>
+          </div>
+        </div>
+
+        <!-- 3. 보통위험 (Yellow) -->
+        <div class="bg-white rounded-xl border border-amber-200/80 shadow-sm p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 bg-amber-50/20">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+            <i data-lucide="alert-circle" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+              <p class="text-[11px] sm:text-xs font-medium text-amber-800 truncate">보통위험 (4~8)</p>
+            </div>
+            <p id="kpiMedium" class="text-xl sm:text-2xl font-bold text-amber-600 mt-0.5">1건</p>
+          </div>
+        </div>
+
+        <!-- 4. 낮은위험 (Green) -->
+        <div class="bg-white rounded-xl border border-emerald-200/80 shadow-sm p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 bg-emerald-50/20">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="check-circle-2" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <p class="text-[11px] sm:text-xs font-medium text-emerald-800 truncate">낮은위험 (1~3)</p>
+            </div>
+            <p id="kpiLow" class="text-xl sm:text-2xl font-bold text-emerald-600 mt-0.5">0건</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 인쇄용 공식 문서 결재란 헤더 (Print Only) -->
+      <div class="print-only mb-4">
+        <div class="text-center pb-2 border-b-2 border-slate-900 mb-3">
+          <h1 class="text-xl font-bold text-slate-900">일일 위험성평가표 및 작업 전 안전점검회의(TBM) 일지</h1>
+          <p class="text-xs text-slate-600 mt-0.5">산업안전보건법 제36조(위험성평가의 실시) 및 중대재해처벌법 시행령 제4조 준수 양식</p>
+        </div>
+        
+        <div class="flex justify-between items-end text-xs mb-2">
+          <div class="space-y-1">
+            <p><span class="font-bold">■ 공사/현장명:</span> <span id="printSiteName" class="font-semibold text-slate-900"></span></p>
+            <p><span class="font-bold">■ 작업 일자:</span> <span id="printWorkDate"></span> &nbsp;|&nbsp; <span class="font-bold">■ 투입 인원:</span> <span id="printWorkerCount"></span>명</p>
+            <p><span class="font-bold">■ 당일 공종:</span> <span id="printProcesses" class="text-slate-800"></span></p>
+          </div>
+
+          <!-- 3단 결재란 도장/서명 테이블 -->
+          <table class="border-collapse border border-slate-900 text-center text-xs">
+            <tr>
+              <th rowspan="2" class="border border-slate-900 bg-slate-100 px-2 py-1 font-bold w-12 text-center">결<br>재</th>
+              <th class="border border-slate-900 px-3 py-0.5 font-bold w-20">작성자</th>
+              <th class="border border-slate-900 px-3 py-0.5 font-bold w-20">검토자</th>
+              <th class="border border-slate-900 px-3 py-0.5 font-bold w-20">승인(소장)</th>
+            </tr>
+            <tr class="h-14">
+              <td class="border border-slate-900 p-1 align-middle" id="stampAuthor">
+                <span class="text-slate-400 text-xs">(서명)</span>
+              </td>
+              <td class="border border-slate-900 p-1 align-middle" id="stampReviewer">
+                <span class="text-slate-400 text-xs">(서명)</span>
+              </td>
+              <td class="border border-slate-900 p-1 align-middle" id="stampApprover">
+                <span class="text-slate-400 text-xs">(서명)</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. 당일 아침 10분 TBM 안전교육 대본 카드 -->
+      <section class="bg-white rounded-xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <i data-lucide="megaphone" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">당일 아침 10분 TBM 안전교육 대본</h2>
+              <p class="text-xs text-slate-500">작업 전 조회 시 관리자가 작업자 전원에게 구두로 낭독하는 현장 가이드</p>
+            </div>
+          </div>
+          
+          <!-- 음성 TTS 재생 버튼 (화면용) -->
+          <div class="no-print flex items-center gap-2">
+            <button id="btnTTS" onclick="toggleTTS()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all flex items-center gap-1.5">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span id="ttsBtnText">대본 음성 읽기</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 대본 텍스트 박스 -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/60 text-sm leading-relaxed text-slate-800 whitespace-pre-line" id="tbmScriptBox">
+          오늘 아침 작업 전 안전점검회의(TBM) 대본이 여기에 표시됩니다.
+        </div>
+
+        <!-- [🚨 동종 현장 중대재해 유사 사고사례 및 교훈 (독립 전용 카드)] -->
+        <div id="accidentCaseCard" class="space-y-2 pt-1">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-rose-700 flex items-center gap-1.5">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
+              <span id="accidentCaseTitleText">동종 현장 중대재해 유사 사고사례 및 교훈 (KOSHA 가이드 참조)</span>
+            </h3>
+            <span id="accidentSourceBadge" class="text-[11px] font-semibold text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md border border-rose-200">
+              KOSHA 가이드 참조
+            </span>
+          </div>
+          <div class="p-4 rounded-xl bg-gradient-to-r from-rose-50/90 via-rose-50/50 to-amber-50/40 border border-rose-200/90 flex items-start gap-3.5 shadow-sm">
+            <div class="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm shadow-rose-200">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1 space-y-1 text-xs">
+              <div id="accidentCaseText" class="leading-relaxed text-slate-800 whitespace-pre-line font-medium">
+                ■ [비계 해체 중 추락 사망사고]: 2025년 OO 신축현장 외벽 비계 해체 중 작업자가 2중 안전대 고리를 걸지 않고 발판을 해체하다 발판이 기울어지며 14m 하부로 추락 사망함. (원인: 안전대 고리 미체결 및 안전난간 선 해체)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- [오늘의 핵심 위험 3가지 및 절대 금지 수칙] -->
+        <div class="space-y-2 pt-2">
+          <h3 class="text-xs font-bold text-rose-700 flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-rose-600"></i>
+            오늘의 핵심 위험 3가지 및 절대 금지 수칙 (Zero Accident Rule)
+          </h3>
+          <div id="coreRulesContainer" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- 3가지 수칙 카드 자동 삽입 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 고용노동부/KOSHA 표준 양식: 일일 위험성평가표 및 TBM 일지 테이블 -->
+      <section class="bg-white rounded-xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+              <i data-lucide="table" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">고용노동부·KOSHA 표준 일일 위험성평가표</h2>
+              <p class="text-xs text-slate-500">5x5 Risk Matrix 빈도·강도 산정 및 현장 개선 감소대책</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="no-print text-[11px] sm:text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60 whitespace-nowrap">
+              기준: 빈도(1~5) x 강도(1~5)
+            </span>
+            <span class="md:hidden text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60 font-medium inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
+              <i data-lucide="chevrons-left-right" class="w-3 h-3"></i>
+              <span>좌우 스크롤</span>
+            </span>
+          </div>
+        </div>
+
+                <!-- 테이블 래퍼 (가로 스크롤 보장 및 최소 너비 840px 지정으로 글자 쪼개짐 원천 방지) -->
+        <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+          <table id="riskTable" class="min-w-[840px] w-full divide-y divide-slate-200 text-xs text-left">
+            <thead class="bg-slate-100 text-slate-700 font-semibold">
+              <tr>
+                <th scope="col" class="px-3 py-2.5 w-12 text-center border-r border-slate-200 whitespace-nowrap">No.</th>
+                <th scope="col" class="px-3 py-2.5 w-28 border-r border-slate-200 whitespace-nowrap">공종 / 세부작업</th>
+                <th scope="col" class="px-4 py-2.5 border-r border-slate-200 whitespace-nowrap">유해·위험요인 (사고 유형)</th>
+                <th scope="col" class="px-2.5 py-2.5 w-14 text-center border-r border-slate-200 whitespace-nowrap">빈도</th>
+                <th scope="col" class="px-2.5 py-2.5 w-14 text-center border-r border-slate-200 whitespace-nowrap">강도</th>
+                <th scope="col" class="px-3 py-2.5 w-24 text-center border-r border-slate-200 whitespace-nowrap">위험성 등급</th>
+                <th scope="col" class="px-4 py-2.5 border-r border-slate-200 whitespace-nowrap">안전보건 감소대책 (실행 방안)</th>
+                <th scope="col" class="px-3 py-2.5 w-24 text-center border-r border-slate-200 whitespace-nowrap">조치 담당자</th>
+                <th scope="col" class="px-3 py-2.5 w-20 text-center whitespace-nowrap">조치 확인</th>
+              </tr>
+            </thead>
+            <tbody id="riskTableBody" class="divide-y divide-slate-200 bg-white">
+              <!-- JS 동적 생성 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. 스마트폰/태블릿 터치 Canvas 전자서명란 (화면용) -->
+      <section class="no-print bg-white rounded-xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+              <i data-lucide="pen-tool" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">현장 관리자 터치 전자서명</h2>
+              <p class="text-xs text-slate-500">스마트폰이나 태블릿에서 손가락/터치펜으로 직접 서명하여 문서에 즉시 날인합니다</p>
+            </div>
+          </div>
+          <!-- 서명 슬롯 선택 탭 (모바일에서 3열 그리드로 깔끔하게 배치) -->
+          <div class="grid grid-cols-3 sm:flex bg-slate-100 p-1 rounded-lg text-xs font-medium text-slate-600 w-full sm:w-auto gap-1">
+            <button onclick="switchSignSlot('author')" id="slotTab_author" class="px-2.5 sm:px-3 py-1.5 rounded-md bg-white text-indigo-600 shadow-sm text-center whitespace-nowrap">
+              <span class="sm:hidden">작성자</span><span class="hidden sm:inline">작성자 (안전관리자)</span>
+            </button>
+            <button onclick="switchSignSlot('reviewer')" id="slotTab_reviewer" class="px-2.5 sm:px-3 py-1.5 rounded-md hover:text-slate-900 text-center whitespace-nowrap">
+              <span class="sm:hidden">검토자</span><span class="hidden sm:inline">검토자 (공사담당)</span>
+            </button>
+            <button onclick="switchSignSlot('approver')" id="slotTab_approver" class="px-2.5 sm:px-3 py-1.5 rounded-md hover:text-slate-900 text-center whitespace-nowrap">
+              <span class="sm:hidden">승인자</span><span class="hidden sm:inline">승인자 (현장소장)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+          <!-- 캔버스 영역 -->
+          <div class="lg:col-span-2 space-y-2">
+            <div class="relative bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden flex items-center justify-center h-44">
+              <canvas id="signCanvas" width="560" height="176" class="w-full h-full touch-none cursor-crosshair"></canvas>
+              <div id="signPlaceholder" class="absolute pointer-events-none text-xs text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                <span>이곳에 마우스나 손가락으로 서명해 주세요</span>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+              <span class="text-xs text-slate-500">현재 서명 대상: <strong id="currentSignRole" class="text-indigo-600">작성자 (안전관리자)</strong></span>
+              <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button onclick="clearSignature()" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition-all flex items-center justify-center gap-1 shadow-sm whitespace-nowrap">
+                  <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
+                  <span>서명 지우기</span>
+                </button>
+                <button onclick="saveSignature()" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all flex items-center justify-center gap-1 whitespace-nowrap">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>서명 등록</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 서명 현황 미리보기 -->
+          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
+            <h3 class="text-xs font-bold text-slate-700">현재 서명 등록 현황</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs">
+                <span class="text-slate-600 font-medium">작성자 (안전관리자)</span>
+                <span id="badgeSignAuthor" class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">미서명</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs">
+                <span class="text-slate-600 font-medium">검토자 (공사담당)</span>
+                <span id="badgeSignReviewer" class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">미서명</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs">
+                <span class="text-slate-600 font-medium">승인자 (현장소장)</span>
+                <span id="badgeSignApprover" class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">미서명</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-normal">※ 등록된 서명은 상단 결재란 및 인쇄 서식에 실시간 연동됩니다.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- 푸터 (화면용) -->
+  <footer class="no-print bg-white border-t border-slate-200/80 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p>세이프티 TBM 코파일럿 &copy; 2026. 산업안전보건공단(KOSHA) 및 중대재해 감축 로드맵 준수.</p>
+      <div class="flex items-center gap-4">
+        <span>FastAPI + Tailwind CSS + Dify AI Engine</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Dify API 설정 모달 (화면용) -->
+  <div id="configModal" class="hidden no-print fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sliders" class="w-5 h-5 text-indigo-600"></i>
+          <h3 class="text-base font-bold text-slate-900">Dify 워크플로우 API 설정</h3>
+        </div>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500">
+        Dify Studio 워크플로우의 API Key를 등록하면 클라우드 Dify AI 모델과 실시간 연동됩니다. 
+        미등록 시 고용노동부/KOSHA 표준 로컬 지능형 엔진으로 자동 작동합니다.
+      </p>
+
+      <form id="configForm" onsubmit="handleSaveConfig(event)" class="space-y-4">
+        <div>
+          <label for="cfgApiKey" class="block text-xs font-semibold text-slate-700 mb-1">Dify Workflow API Key</label>
+          <input type="password" id="cfgApiKey" placeholder="app-..."
+            class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border text-slate-800" />
+          <p class="text-[11px] text-slate-400 mt-1">Dify 콘솔 > 앱 > API Access에서 복사한 API Key를 입력하세요.</p>
+        </div>
+
+        <div>
+          <label for="cfgBaseUrl" class="block text-xs font-semibold text-slate-700 mb-1">Dify API Base URL</label>
+          <input type="text" id="cfgBaseUrl" value="https://api.dify.ai/v1"
+            class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border text-slate-800" />
+        </div>
+
+        <div id="cfgFeedback" class="hidden p-3 rounded-lg text-xs"></div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeConfigModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300">
+            닫기
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm">
+            설정 저장
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 메인 스크립트 -->
+  <script>
+    // 오늘 날짜 기본 세팅
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('workDate').value = today;
+      lucide.createIcons();
+      initSignatureCanvas();
+      checkConfigStatus();
+    });
+
+    // 프리셋 데이터
+    const PRESETS = [
+      {
+        site: "판교 제2테크노밸리 업무시설 신축현장",
+        count: 14,
+        desc: "3공구 외부 시스템 비계 해체 작업 진행 및 외벽 고소 로프 도장작업 실시. 하부 자재 반출 및 지게차 운행 병행."
+      },
+      {
+        site: "화성 스마트 물류센터 메가허브 신축현장",
+        count: 18,
+        desc: "지상 2층 철골 트러스 구조물 조립 및 고소 아크 용접 작업. 50톤 하이드로 크레인 자재 양중 및 볼트 체결 작업 병행."
+      },
+      {
+        site: "송도 바이오 콤플렉스 지하 터파기 현장",
+        count: 10,
+        desc: "지하 3층 구간 토공사 굴착 및 흙막이 CIP 벽체 띠장 가시설 설치. 0.8톤 굴착기 2대 가동 및 덤프트럭 토사 반출."
+      },
+      {
+        site: "여수 석유화학단지 열교환기 증설공사",
+        count: 8,
+        desc: "지하 폐수처리 피트 및 반응기 밀폐공간 내부 배관 교체 및 알곤 용접 작업. 송풍기 환기 및 비파괴 검사 병행."
+      }
+    ];
+
+    function applyPreset(idx) {
+      const p = PRESETS[idx];
+      if (!p) return;
+      document.getElementById('siteName').value = p.site;
+      document.getElementById('workerCount').value = p.count;
+      document.getElementById('workDesc').value = p.desc;
+
+      // 작업 내용 입력 필드로 포커스 및 시각적 피드백 제공
+      const workDescEl = document.getElementById('workDesc');
+      workDescEl.focus();
+      workDescEl.classList.add('ring-2', 'ring-indigo-500');
+      setTimeout(() => {
+        workDescEl.classList.remove('ring-2', 'ring-indigo-500');
+      }, 1000);
+
+      // 생성 버튼 강조 애니메이션 (사용자 클릭 유도)
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.classList.add('ring-4', 'ring-indigo-300');
+      setTimeout(() => {
+        btnSubmit.classList.remove('ring-4', 'ring-indigo-300');
+      }, 1200);
+    }
+
+    function clearForm() {
+      document.getElementById('siteName').value = '';
+      document.getElementById('workDesc').value = '';
+      document.getElementById('workerCount').value = '10';
+    }
+
+    // TBM 생성 API 호출
+    let currentTBMData = null;
+
+    async function handleGenerate(e) {
+      if (e) e.preventDefault();
+
+      const siteName = document.getElementById('siteName').value.trim();
+      const workDate = document.getElementById('workDate').value;
+      const workDesc = document.getElementById('workDesc').value.trim();
+      const workerCount = document.getElementById('workerCount').value;
+
+      if (!siteName || !workDate || !workDesc) {
+        alert("현장명, 작업일자, 작업 내용을 모두 입력해 주세요.");
+        return;
+      }
+
+      // UI 로딩 표시
+      document.getElementById('loadingIndicator').classList.remove('hidden');
+      document.getElementById('btnSubmit').disabled = true;
+
+      try {
+        const allowGenerative = document.getElementById('allowGenerativeAccident') ? document.getElementById('allowGenerativeAccident').checked : true;
+        const formData = new FormData();
+        formData.append("site_name", siteName);
+        formData.append("work_date", workDate);
+        formData.append("work_description", workDesc);
+        formData.append("worker_count", workerCount);
+        formData.append("allow_generative_accident", allowGenerative ? "true" : "false");
+
+        const res = await fetch("/api/generate-tbm", {
+          method: "POST",
+          body: formData
+        });
+        const result = await res.json();
+
+        if (result.status === "success") {
+          currentTBMData = result.data;
+          renderTBMData(result.data);
+        } else {
+          alert("생성 실패: " + (result.message || "오류가 발생했습니다."));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("서버 통신 오류가 발생했습니다: " + err.message);
+      } finally {
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        document.getElementById('btnSubmit').disabled = false;
+      }
+    }
+
+    // 결과 데이터 화면 렌더링
+    function renderTBMData(data) {
+      // 1. KPI 지표 계산
+      const assessments = data.risk_assessments || [];
+      const total = assessments.length;
+      let high = 0, medium = 0, low = 0;
+
+      assessments.forEach(item => {
+        const score = item.risk_score || (item.frequency * item.severity) || 0;
+        if (score >= 9) high++;
+        else if (score >= 4) medium++;
+        else low++;
+      });
+
+      document.getElementById('kpiTotal').textContent = total + "건";
+      document.getElementById('kpiHigh').textContent = high + "건";
+      document.getElementById('kpiMedium').textContent = medium + "건";
+      document.getElementById('kpiLow').textContent = low + "건";
+
+      // 2. 인쇄용 헤더 정보 동기화
+      document.getElementById('printSiteName').textContent = data.site_name || document.getElementById('siteName').value;
+      document.getElementById('printWorkDate').textContent = data.work_date || document.getElementById('workDate').value;
+      document.getElementById('printWorkerCount').textContent = data.worker_count || document.getElementById('workerCount').value;
+      document.getElementById('printProcesses').textContent = (data.classified_processes || []).join(", ") || "일반 작업";
+
+      // 3. 10분 TBM 대본
+      const scriptText = data.tbm_briefing_script || "대본 데이터가 없습니다.";
+      document.getElementById('tbmScriptBox').textContent = scriptText;
+
+      // 4. [🚨 동종 현장 중대재해 유사 사고사례 카드] 렌더링
+      const accidentCard = document.getElementById('accidentCaseCard');
+      const accidentTextEl = document.getElementById('accidentCaseText');
+      const accidentTitleEl = document.getElementById('accidentCaseTitleText');
+      const accidentBadgeEl = document.getElementById('accidentSourceBadge');
+      
+      const allowGenerative = document.getElementById('allowGenerativeAccident') ? document.getElementById('allowGenerativeAccident').checked : true;
+      let accText = data.accident_cases || '';
+
+      // 독립 필드가 비어있고 대본에 사고 언급 문장이 있으면 자동 발췌 보강
+      if (!accText && scriptText && allowGenerative) {
+        const lines = scriptText.split('\n');
+        const matchedLines = lines.filter(l => l.includes('사고') || l.includes('사망') || l.includes('추락') || l.includes('붕괴') || l.includes('협착'));
+        if (matchedLines.length > 0) {
+          accText = matchedLines.join('\n');
+        }
+      }
+
+      // 소스 형태 및 옵션에 따라 제목과 뱃지 동적 설정
+      const source = data.accident_source || (allowGenerative ? "generative_kosha" : "knowledge_base");
+      
+      if (source === "generative_kosha" || (allowGenerative && (!data.accident_source || data.accident_source.includes('gen')))) {
+        if (accidentTitleEl) accidentTitleEl.textContent = "동종 현장 중대재해 유사 사고사례 및 교훈 (KOSHA 가이드 참조)";
+        if (accidentBadgeEl) {
+          accidentBadgeEl.textContent = "KOSHA 가이드 참조 (생성형 AI)";
+          accidentBadgeEl.className = "text-[11px] font-semibold text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md border border-rose-200";
+        }
+      } else if (source === "knowledge_base") {
+        if (accidentTitleEl) accidentTitleEl.textContent = "동종 현장 중대재해 유사 사고사례 및 교훈 (KOSHA 공식 DB)";
+        if (accidentBadgeEl) {
+          accidentBadgeEl.textContent = "공식 KOSHA 지침 인출";
+          accidentBadgeEl.className = "text-[11px] font-semibold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-200";
+        }
+      } else {
+        if (accidentTitleEl) accidentTitleEl.textContent = "동종 현장 중대재해 유사 사고사례 및 교훈 (지식 베이스 검색 전용)";
+        if (accidentBadgeEl) {
+          accidentBadgeEl.textContent = "사고사례 미등록";
+          accidentBadgeEl.className = "text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-300";
+        }
+      }
+
+      if (accText && accText.trim()) {
+        accidentCard.classList.remove('hidden');
+        accidentTextEl.textContent = accText.trim();
+      } else {
+        if (!allowGenerative) {
+          accidentCard.classList.remove('hidden');
+          accidentTextEl.textContent = "■ 지식 베이스(KOSHA DB)에 등록된 동종 중대재해 사고사례가 없습니다.\n(생성형 AI 보완 옵션이 해제되어 있어 공식 지식 문서만을 참조합니다. 표준 안전작업지침을 준수하십시오.)";
+        } else {
+          accidentCard.classList.add('hidden');
+        }
+      }
+
+      // 5. 오늘의 3대 절대 금지 수칙
+      const rulesContainer = document.getElementById('coreRulesContainer');
+      rulesContainer.innerHTML = '';
+      const rules = data.core_safety_rules || [];
+      rules.forEach((rule, idx) => {
+        const ruleCard = document.createElement('div');
+        ruleCard.className = "flex items-start gap-2.5 p-3 rounded-lg bg-rose-50/60 border border-rose-200/80 text-xs";
+        ruleCard.innerHTML = `
+          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex-shrink-0 text-[11px]">${idx + 1}</span>
+          <span class="text-rose-950 font-medium leading-snug">${rule}</span>
+        `;
+        rulesContainer.appendChild(ruleCard);
+      });
+
+      // 5. 고용노동부 표준 위험성평가표 테이블 채우기
+      const tbody = document.getElementById('riskTableBody');
+      tbody.innerHTML = '';
+
+      assessments.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+
+        const score = item.risk_score || (item.frequency * item.severity) || 0;
+        let badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        let levelText = `낮음 (${score})`;
+        if (score >= 9) {
+          badgeClass = "bg-rose-50 text-rose-700 border-rose-200 font-bold";
+          levelText = `🔴 고위험 (${score})`;
+        } else if (score >= 4) {
+          badgeClass = "bg-amber-50 text-amber-700 border-amber-200 font-semibold";
+          levelText = `🟡 보통 (${score})`;
+        } else {
+          levelText = `🟢 낮음 (${score})`;
+        }
+
+        tr.innerHTML = `
+          <td class="px-3 py-3 text-center border-r border-slate-200 font-medium text-slate-500">${idx + 1}</td>
+          <td class="px-3 py-3 font-semibold text-slate-800 border-r border-slate-200">${item.process_name || '-'}</td>
+          <td class="px-4 py-3 text-slate-700 border-r border-slate-200 leading-relaxed">${item.hazard_factor || '-'}</td>
+          <td class="px-2 py-3 text-center border-r border-slate-200 font-medium">${item.frequency || 1}</td>
+          <td class="px-2 py-3 text-center border-r border-slate-200 font-medium">${item.severity || 1}</td>
+          <td class="px-3 py-3 text-center border-r border-slate-200">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] border ${badgeClass}">
+              ${levelText}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-700 border-r border-slate-200 leading-relaxed font-medium">${item.countermeasure || '-'}</td>
+          <td class="px-3 py-3 text-center border-r border-slate-200 text-slate-800 font-medium">${item.action_owner || '-'}</td>
+          <td class="px-3 py-3 text-center text-slate-400">
+            <span class="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> 이행확인
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 6. 엔진 배지 업데이트
+      const engineBadge = document.getElementById('engineStatusText');
+      if (data.engine_mode === 'dify') {
+        engineBadge.textContent = "Dify AI 엔진 가동중";
+        engineBadge.parentElement.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200";
+      } else {
+        engineBadge.textContent = "KOSHA 지능형 로컬 엔진";
+        engineBadge.parentElement.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+      }
+
+      lucide.createIcons();
+    }
+
+    // TTS 음성 읽어주기 (Web Speech API)
+    let isSpeaking = false;
+    function toggleTTS() {
+      const text = document.getElementById('tbmScriptBox').textContent;
+      if (!text || text.trim() === '') return;
+
+      if (!('speechSynthesis' in window)) {
+        alert("해당 브라우저는 음성 합성(TTS) 기능을 지원하지 않습니다.");
+        return;
+      }
+
+      const btn = document.getElementById('btnTTS');
+      const btnText = document.getElementById('ttsBtnText');
+
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        btnText.textContent = "대본 음성 읽기";
+        btn.classList.remove('bg-rose-100', 'text-rose-700', 'border-rose-200');
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'ko-KR';
+      utter.rate = 1.0;
+      utter.pitch = 1.0;
+
+      utter.onstart = () => {
+        isSpeaking = true;
+        btnText.textContent = "음성 낭독 중지";
+        btn.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-200');
+      };
+
+      utter.onend = utter.onerror = () => {
+        isSpeaking = false;
+        btnText.textContent = "대본 음성 읽기";
+        btn.classList.remove('bg-rose-100', 'text-rose-700', 'border-rose-200');
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ==================== Canvas 전자서명 기능 ====================
+    let canvas, ctx;
+    let isDrawing = false;
+    let currentSlot = 'author';
+    const signatures = {
+      author: null,
+      reviewer: null,
+      approver: null
+    };
+
+    const roleNames = {
+      author: "작성자 (안전관리자)",
+      reviewer: "검토자 (공사담당)",
+      approver: "승인자 (현장소장)"
+    };
+
+    function getCanvasPoint(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    function initSignatureCanvas() {
+      canvas = document.getElementById('signCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#1e293b';
+
+      // 마우스 이벤트
+      canvas.addEventListener('mousedown', startDraw);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDraw);
+      canvas.addEventListener('mouseleave', stopDraw);
+
+      // 터치 이벤트 (모바일/태블릿 정확한 좌표 스케일링)
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const pt = getCanvasPoint(touch.clientX, touch.clientY);
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(pt.x, pt.y);
+        hideSignPlaceholder();
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const pt = getCanvasPoint(touch.clientX, touch.clientY);
+        ctx.lineTo(pt.x, pt.y);
+        ctx.stroke();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        stopDraw();
+      }, { passive: false });
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      const pt = getCanvasPoint(e.clientX, e.clientY);
+      ctx.beginPath();
+      ctx.moveTo(pt.x, pt.y);
+      hideSignPlaceholder();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const pt = getCanvasPoint(e.clientX, e.clientY);
+      ctx.lineTo(pt.x, pt.y);
+      ctx.stroke();
+    }
+
+    function stopDraw() {
+      if (isDrawing) {
+        ctx.closePath();
+        isDrawing = false;
+      }
+    }
+
+    function hideSignPlaceholder() {
+      const pl = document.getElementById('signPlaceholder');
+      if (pl) pl.style.display = 'none';
+    }
+
+    function clearSignature() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const pl = document.getElementById('signPlaceholder');
+      if (pl) pl.style.display = 'flex';
+    }
+
+    function switchSignSlot(slot) {
+      currentSlot = slot;
+      document.getElementById('currentSignRole').textContent = roleNames[slot];
+
+      // 탭 스타일 갱신
+      ['author', 'reviewer', 'approver'].forEach(s => {
+        const btn = document.getElementById(`slotTab_${s}`);
+        if (s === slot) {
+          btn.className = "px-3 py-1 rounded-md bg-white text-indigo-600 shadow-sm font-semibold";
+        } else {
+          btn.className = "px-3 py-1 rounded-md hover:text-slate-900";
+        }
+      });
+
+      clearSignature();
+      // 기존 서명이 있으면 복원
+      if (signatures[slot]) {
+        const img = new Image();
+        img.onload = () => {
+          hideSignPlaceholder();
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = signatures[slot];
+      }
+    }
+
+    function saveSignature() {
+      const dataUrl = canvas.toDataURL('image/png');
+      signatures[currentSlot] = dataUrl;
+
+      // 뱃지 상태 업데이트
+      const badgeMap = {
+        author: 'badgeSignAuthor',
+        reviewer: 'badgeSignReviewer',
+        approver: 'badgeSignApprover'
+      };
+      const badge = document.getElementById(badgeMap[currentSlot]);
+      if (badge) {
+        badge.textContent = "서명 완료";
+        badge.className = "px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-700";
+      }
+
+      // 인쇄 결재란에 도장/서명 이미지 반영
+      const stampMap = {
+        author: 'stampAuthor',
+        reviewer: 'stampReviewer',
+        approver: 'stampApprover'
+      };
+      const stampTd = document.getElementById(stampMap[currentSlot]);
+      if (stampTd) {
+        stampTd.innerHTML = `<img src="${dataUrl}" class="max-h-12 max-w-full mx-auto object-contain" alt="서명" />`;
+      }
+
+      alert(`${roleNames[currentSlot]}의 전자서명이 성공적으로 반영되었습니다.`);
+    }
+
+    // ==================== 인쇄 / PDF 출력 ====================
+    function handlePrint() {
+      window.print();
+    }
+
+    // ==================== Dify 설정 모달 ====================
+    function openConfigModal() {
+      document.getElementById('configModal').classList.remove('hidden');
+      checkConfigStatus();
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    async function checkConfigStatus() {
+      try {
+        const res = await fetch("/api/config-status");
+        const json = await res.json();
+        const badge = document.getElementById('engineStatusText');
+        if (json.dify_configured) {
+          badge.textContent = "Dify Workflow 연동됨";
+          badge.parentElement.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200";
+          document.getElementById('cfgApiKey').placeholder = json.dify_masked_key;
+        } else {
+          badge.textContent = "KOSHA 지능형 로컬 엔진";
+          badge.parentElement.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+        }
+        document.getElementById('cfgBaseUrl').value = json.dify_base_url || "https://api.dify.ai/v1";
+      } catch (err) {
+        console.error("Config status check failed:", err);
+      }
+    }
+
+    async function handleSaveConfig(e) {
+      e.preventDefault();
+      const apiKey = document.getElementById('cfgApiKey').value.trim();
+      const baseUrl = document.getElementById('cfgBaseUrl').value.trim();
+      const feedback = document.getElementById('cfgFeedback');
+
+      try {
+        const res = await fetch("/api/update-config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dify_api_key: apiKey,
+            dify_base_url: baseUrl
+          })
+        });
+        const json = await res.json();
+        if (json.status === "success") {
+          feedback.className = "p-3 rounded-lg text-xs bg-emerald-50 text-emerald-800 border border-emerald-200";
+          feedback.textContent = json.message;
+          feedback.classList.remove('hidden');
+          checkConfigStatus();
+          setTimeout(() => {
+            closeConfigModal();
+            feedback.classList.add('hidden');
+          }, 1500);
+        } else {
+          feedback.className = "p-3 rounded-lg text-xs bg-rose-50 text-rose-800 border border-rose-200";
+          feedback.textContent = json.message;
+          feedback.classList.remove('hidden');
+        }
+      } catch (err) {
+        feedback.className = "p-3 rounded-lg text-xs bg-rose-50 text-rose-800 border border-rose-200";
+        feedback.textContent = "설정 저장 실패: " + err.message;
+        feedback.classList.remove('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
